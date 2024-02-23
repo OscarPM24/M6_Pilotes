@@ -42,10 +42,11 @@ function randomRGB() {
 // - afegeix les pilotes al array de pilotes
 // - posa el fons del navegador en negre
 // - dibuixa les pilotes al canvas i les mou
+// - comproba si les pilotes estan colisionant
 // - crida a requestAnimationFrame, per crear la animació
 
 function loop() {
-  let posPilota = 0;
+  let posArrayPilotes = 0;
   if (!creades) {
     for (let i = 0; i < 25; i++) {
       let mida = random(10, 20);
@@ -64,20 +65,40 @@ function loop() {
   pilotes.forEach(pilota => {
     pilota.dibuixa(ctx);
     pilota.mou()
-    pilotesX[posPilota] = pilota.x;
-    pilotesY[posPilota] = pilota.y;
-    posPilota++;
+    pilotesX[posArrayPilotes] = pilota.x;
+    pilotesY[posArrayPilotes] = pilota.y;
+    posArrayPilotes++;
   });
 
-  checkColisio()
+  checkColisio();
   requestAnimationFrame(loop);
 }
 
+// Funció que comproba si les pilotes estan colisionant
+
 function checkColisio() {
+  pilotes.forEach(pilota1 => {
+    pilotes.forEach(pilota2 => {
+      let distanciaX = Math.abs(pilota1.x - pilota2.x); // Distancia horitzontal de les dos pilotes
+      let distanciaY = Math.abs(pilota1.y - pilota2.y); // Distancia vertical de les dos pilotes
+      let hipotenusa = Math.sqrt(distanciaX**2 + distanciaY**2); // Vector distancia de x i y
+      let sumaRadis = (pilota1.mida + pilota2.mida); // Longitud dels radis de les dos pilotes
 
-  for (let i = 0; i < pilotes.length; i++) {
-
-  }
+      if (hipotenusa != 0 && hipotenusa <= sumaRadis) {
+        // Canviem el color de les pilotes
+        pilota1.color = randomRGB();
+        pilota2.color = randomRGB();
+        // Cambiem la direcció
+        pilota1.velX *= -1;
+        pilota1.velY *= -1;
+        pilota2.velX *= -1;
+        pilota2.velY *= -1;
+        // Movem les pilotes
+        pilota1.mou()
+        pilota2.mou()
+      }
+    })
+  });
 }
 
-loop()
+loop() // Comença el programa
